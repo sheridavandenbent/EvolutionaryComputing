@@ -46,6 +46,26 @@ public class player15 implements ContestSubmission
         boolean hasStructure = Boolean.parseBoolean(props.getProperty("Regular"));
         boolean isSeparable = Boolean.parseBoolean(props.getProperty("Separable"));
 
+        /* PROPERTIES */
+        //
+        // BentCigar
+        // Evaluations: 10000
+        // Regular: false
+        // Multimodal: false
+        // Separable: false
+        //
+        // Katsuura
+        // Evaluations: 1000000
+        // Regular: false
+        // Multimodal: true
+        // Separable: false
+        //
+        // Schaffers
+        // Evaluations: 100000
+        // Regular: true
+        // Multimodal: true
+        // Separable: false
+
 		// Do sth with property values, e.g. specify relevant settings of your algorithm
         if (isMultimodal) {
             // Do sth
@@ -57,8 +77,9 @@ public class player15 implements ContestSubmission
 	public void run()
 	{
 		// Run your algorithm here
-        
+        setSeed(5);
         int evals = 0;
+        System.out.println("heuuu");
         // init population
         // calculate fitness
         while (evals<evaluations_limit_) {
