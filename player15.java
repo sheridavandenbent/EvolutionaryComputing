@@ -3,6 +3,7 @@ import org.vu.contest.ContestEvaluation;
 
 import java.util.Random;
 import java.util.Properties;
+import java.util.*;
 
 public class player15 implements ContestSubmission
 {
@@ -28,6 +29,15 @@ public class player15 implements ContestSubmission
 		
 		// Get evaluation properties
 		Properties props = evaluation.getProperties();
+
+        // This can be used to check for properties
+        // Enumeration keys = props.keys();
+        // while (keys.hasMoreElements()) {
+        //     String key = (String)keys.nextElement();
+        //     String value = (String)props.get(key);
+        //     System.out.println(key + ": " + value);
+        // }
+
         // Get evaluation limit
         evaluations_limit_ = Integer.parseInt(props.getProperty("Evaluations"));
 		// Property keys depend on specific evaluation
@@ -37,9 +47,9 @@ public class player15 implements ContestSubmission
         boolean isSeparable = Boolean.parseBoolean(props.getProperty("Separable"));
 
 		// Do sth with property values, e.g. specify relevant settings of your algorithm
-        if(isMultimodal){
+        if (isMultimodal) {
             // Do sth
-        }else{
+        } else {
             // Do sth else
         }
     }
@@ -51,7 +61,7 @@ public class player15 implements ContestSubmission
         int evals = 0;
         // init population
         // calculate fitness
-        while(evals<evaluations_limit_){
+        while (evals<evaluations_limit_) {
             // Select parents
             // Apply crossover / mutation operators
             double child[] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
