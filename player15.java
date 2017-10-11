@@ -7,6 +7,36 @@ import java.util.*;
 
 import java.lang.Math;
 
+class Pair implements Comparable<Pair> {
+  public final int index;
+  public final int value;
+
+  public Pair(int index, int value) {
+    this.index = index;
+    this.value = value;
+  }
+
+  @Override
+  public int compareTo(Pair other) {
+    return Integer.valueOf(this.value).compareTo(other.value);
+  }
+}
+
+class PairD implements Comparable<PairD> {
+  public final int index;
+  public final double value;
+
+  public PairD(int index, double value) {
+    this.index = index;
+    this.value = value;
+  }
+
+  @Override
+  public int compareTo(PairD other) {
+    return new Double(this.value).compareTo(other.value);
+  }
+}
+
 public class player15 implements ContestSubmission
 {
 	Random rnd_;
@@ -76,7 +106,97 @@ public class player15 implements ContestSubmission
             // Do sth else
         }
     }
-    
+
+  /* Check if array contains value */
+  public boolean contains(int[] array, int val) {
+    for(int i = 0; i < array.length; i++) {
+      if(val == array[i]) return true;
+    }
+    return false;
+  }
+
+/* Method to pick m survivors out of a population of size m + l via round-robin
+     population[m+l][NO_DIMENSIONS]
+     returns double[m][NO_DIMENSIONS] */
+  public double[][] round_robin(double[][] population, int m) {
+    final int q = 10; /* As is typical */
+    final int pop_size = population.length;
+
+    /* Pre-compute fitness for every individual */
+    double fit[] = new double[pop_size];
+    for(int i = 0; i < pop_size; i++) {
+      fit[i] = (double) evaluation_.evaluate(population[i]);
+    }
+
+    /* Create an array containing <index, wins> pairs.
+      This way we can keep track of the original index after sorting. */
+    Pair results[] = new Pair[pop_size];
+
+    /* For every individual, pick 10 random opponents and count the number of wins */
+    for(int i = 0; i < pop_size; i++) {
+      int wins = 0;
+      int prev_opps[] = new int[q];
+
+      for(int j = 0; j < q; j++){
+        int opp;
+
+        /* Avoid picking yourself or previous opponents */
+        do {
+           opp = (int) (pop_size * Math.random());
+        } while(opp == i || contains(prev_opps, opp));
+
+        /* FIGHT! */
+        if(fit[i] > fit[opp])
+          wins++;
+
+        /* Add to fought opponents */
+        prev_opps[j] = opp;
+      }
+      results[i] = new Pair(i, wins);
+    }
+
+    /* Sort results */
+    Arrays.sort(results);
+
+    /* Select the m survivors and return them */
+    double survivors[][] = new double[m][NO_DIMENSIONS];
+    for(int i = 0; i < m; i++) {
+      int index = results[i].index;
+      System.arraycopy(population[index], 0, survivors[i], 0, NO_DIMENSIONS);
+    }
+    return survivors;
+  }
+
+  /* Method to pick m survivors out of a population of size l via (m,l)-selection
+     population[m+l][NO_DIMENSIONS]
+     returns double[m][NO_DIMENSIONS] 
+
+     NB: l needs to be larger than m. This will throw OutOfBounds otherwise */
+  public double[][] ml_selection(double[][] offspring, int m) {
+    final int off_size = offspring.length;
+
+    /* Compute fitness for every individual and add to results array*/
+    double fit;
+    PairD results[] = new PairD[off_size];
+
+    for(int i = 0; i < off_size; i++) {
+      fit = (double) evaluation_.evaluate(offspring[i]);
+      results[i] = new PairD(i, fit);
+    }
+
+    /* Sort results */
+    Arrays.sort(results);
+
+    /* Select the m survivors and return them */
+    double survivors[][] = new double[m][NO_DIMENSIONS];
+    for(int i = 0; i < m; i++) {
+      int index = results[i].index;
+      System.arraycopy(offspring[index], 0, survivors[i], 0, NO_DIMENSIONS);
+    }
+    return survivors;
+  }
+  
+
 	public void run()
 	{
 		// Run your algorithm here
