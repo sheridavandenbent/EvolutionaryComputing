@@ -5,12 +5,15 @@ import java.util.Random;
 import java.util.Properties;
 import java.util.*;
 
+import java.lang.Math;
+
 public class player15 implements ContestSubmission
 {
 	Random rnd_;
 	ContestEvaluation evaluation_;
     private int evaluations_limit_;
-	
+  private static final int NO_DIMENSIONS = 10;
+
 	public player15()
 	{
 		rnd_ = new Random();
@@ -80,12 +83,42 @@ public class player15 implements ContestSubmission
         setSeed(5);
         int evals = 0;
         System.out.println("heuuu");
+        
         // init population
+        /* All dummy values for now */
+        double dummy_parent[] = new double[NO_DIMENSIONS];  
+        for(int i = 0; i< NO_DIMENSIONS; i++) {
+          dummy_parent[i] = rnd_.nextDouble();
+        }
+
+        double std_devs[] = new double[NO_DIMENSIONS];
+        for(int i = 0; i< NO_DIMENSIONS; i++) {
+          std_devs[i] = rnd_.nextDouble();
+        }
+        double std_dev_th = 0.1;
+
         // calculate fitness
-        while (evals<evaluations_limit_) {
+        while (evals<3) {
             // Select parents
             // Apply crossover / mutation operators
-            double child[] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+            double child[] = new double[NO_DIMENSIONS];
+            
+            double t = 1. / Math.sqrt(2 * Math.sqrt((double)NO_DIMENSIONS));
+            double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
+            double new_dev;
+
+            for(int i = 0; i< NO_DIMENSIONS; i++) {
+              /* Update standard deviation */
+              new_dev = std_devs[i] * Math.pow(Math.E, tp * Math.random() + t * Math.random());
+              
+              /* If smaller than threshold, set it to threshold */
+              if(new_dev < std_dev_th) new_dev = std_dev_th;
+              std_devs[i] = new_dev;
+
+              /* Update chromosome value */
+              child[i] += std_devs[i] * Math.random();
+            }
+
             // Check fitness of unknown fuction
             Double fitness = (double) evaluation_.evaluate(child);
             evals++;
