@@ -85,9 +85,12 @@ public class player15 implements ContestSubmission
         
         // init population
         /* All dummy values for now */
-        double dummy_parent[] = new double[NO_DIMENSIONS];  
+        double child[] = new double[NO_DIMENSIONS];  
         for(int i = 0; i< NO_DIMENSIONS; i++) {
-          dummy_parent[i] = rnd_.nextDouble();
+          boolean neg = rnd_.nextDouble() > 0.5;
+          child[i] = 5 * rnd_.nextDouble();
+          if(neg) child[i] *= -1;
+          System.out.print(child[i] + ", ");
         }
 
         double std_devs[] = new double[NO_DIMENSIONS];
@@ -100,8 +103,7 @@ public class player15 implements ContestSubmission
         while (evals<evaluations_limit_) {
             // Select parents
             // Apply crossover / mutation operators
-            double child[] = new double[NO_DIMENSIONS];
-            
+            /* Using uncorrelated mutation with n step sizes */   
             double t = 1. / Math.sqrt(2 * Math.sqrt((double)NO_DIMENSIONS));
             double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
             double new_dev;
@@ -115,7 +117,7 @@ public class player15 implements ContestSubmission
               std_devs[i] = new_dev;
 
               /* Update chromosome value */
-              dummy_parent[i] += std_devs[i] * Math.random();
+              child[i] += std_devs[i] * Math.random();
             }
 
             // Check fitness of unknown fuction
