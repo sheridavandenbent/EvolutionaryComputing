@@ -82,7 +82,6 @@ public class player15 implements ContestSubmission
 		// Run your algorithm here
         setSeed(5);
         int evals = 0;
-        System.out.println("heuuu");
         
         // init population
         /* All dummy values for now */
@@ -98,7 +97,7 @@ public class player15 implements ContestSubmission
         double std_dev_th = 0.1;
 
         // calculate fitness
-        while (evals<3) {
+        while (evals<evaluations_limit_) {
             // Select parents
             // Apply crossover / mutation operators
             double child[] = new double[NO_DIMENSIONS];
@@ -116,7 +115,7 @@ public class player15 implements ContestSubmission
               std_devs[i] = new_dev;
 
               /* Update chromosome value */
-              child[i] += std_devs[i] * Math.random();
+              dummy_parent[i] += std_devs[i] * Math.random();
             }
 
             // Check fitness of unknown fuction
