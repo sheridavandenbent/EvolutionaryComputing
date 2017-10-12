@@ -178,7 +178,7 @@ returns double[m][NO_DIMENSIONS] */
 
   /* SURVIVAL SELECTION (2)
   Method to pick m survivors out of a population of size l via (m,l)-selection
-  population[m+l][NO_DIMENSIONS]
+  offspring[m+l][NO_DIMENSIONS]
   returns double[m][NO_DIMENSIONS] 
 
      NB: l needs to be larger than m. This will throw OutOfBounds otherwise */
@@ -212,7 +212,7 @@ returns double[m][NO_DIMENSIONS] */
   parent1 = x, parent2 = y
   Check samenvatting/boek voor uitleg formules
   */
-  public double[] blend_crossover(double[]parent1, double[] parent2) {
+  public double[] blend_crossover(double[] parent1, double[] parent2) {
     double difference[] = new double[NO_DIMENSIONS];
     double a = 0.5;
     
@@ -228,7 +228,7 @@ returns double[m][NO_DIMENSIONS] */
     double gamma = (1-2*a)*u-a;
     double child[] = new double[NO_DIMENSIONS];
 
-    for (i = 0; i<NO_DIMENSIONS; i++) {
+    for (int i = 0; i<NO_DIMENSIONS; i++) {
       child[i] = (1-gamma)*parent1[i]+gamma*parent2[i];
     }
 
@@ -254,31 +254,42 @@ returns double[m][NO_DIMENSIONS] */
 
     return individual;
   }
+
+  public void init_population(double[][] population, int pop_size) {
+    /* All dummy values for now */
+
+    /* Init chromosomes between [-5,5] */
+    for(int i = 0; i < pop_size; i++) {
+      for(int j = 0; j < NO_DIMENSIONS; j++) {
+        boolean neg = rnd_.nextDouble() > 0.5;
+        population[i][j] = 5 * rnd_.nextDouble();
+        if(neg) population[i][j] *= -1;
+      }
+
+      /* Init standard deviations */
+      for(int j = 0; j < NO_DIMENSIONS; j++) {
+        population[i][NO_DIMENSIONS + j] = rnd_.nextDouble();
+      }      
+    }
+  }
   
 
 	public void run()
 	{
 		// Run your algorithm here
         setSeed(5);
-        int evals = 0;
-        
+        int evals = 0, pop_size = 2; /* Or whatever pop_size should be */
+        double population[][] = new double[pop_size][2 * NO_DIMENSIONS];
         // init population
-        /* All dummy values for now */
+        init_population(population, pop_size);
 
-        /* Init chromosomes between [-5,5] */
-        double child[] = new double[2 * NO_DIMENSIONS]; /* Extend this to twice NO_DIMENSIONS so we have room for the std_devs */
-        for(int i = 0; i< NO_DIMENSIONS; i++) {
-          boolean neg = rnd_.nextDouble() > 0.5;
-          child[i] = 5 * rnd_.nextDouble();
-          if(neg) child[i] *= -1;
-          System.out.print(child[i] + ", ");
+        for(int i = 0; i < pop_size; i++) {
+          for(int j = 0; j < NO_DIMENSIONS; j++) {
+            System.out.print(population[i][j] + ", ");
+          }
+          System.out.println();
         }
-
-        /* Init standard deviations */
-        for(int i = 0; i< NO_DIMENSIONS; i++) {
-          child[NO_DIMENSIONS + i] = rnd_.nextDouble();
-        }
-
+        
         // calculate fitness
         while (evals<evaluations_limit_) {
             // Select parents
@@ -288,7 +299,7 @@ returns double[m][NO_DIMENSIONS] */
 
             /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
             double to_eval[] = new double[NO_DIMENSIONS];
-            System.arraycopy(child, 0, to_eval, 0, NO_DIMENSIONS);
+            System.arraycopy(population[0], 0, to_eval, 0, NO_DIMENSIONS);
 
             Double fitness = (double) evaluation_.evaluate(to_eval);
             evals++;
