@@ -115,9 +115,10 @@ public class player15 implements ContestSubmission
     return false;
   }
 
-/* Method to pick m survivors out of a population of size m + l via round-robin
-     population[m+l][NO_DIMENSIONS]
-     returns double[m][NO_DIMENSIONS] */
+/* SURVIVAL SELECTION (1)
+Method to pick m survivors out of a population of size m + l via round-robin
+population[m+l][NO_DIMENSIONS]
+returns double[m][NO_DIMENSIONS] */
   public double[][] round_robin(double[][] population, int m) {
     final int q = 10; /* As is typical */
     final int pop_size = population.length;
@@ -167,9 +168,10 @@ public class player15 implements ContestSubmission
     return survivors;
   }
 
-  /* Method to pick m survivors out of a population of size l via (m,l)-selection
-     population[m+l][NO_DIMENSIONS]
-     returns double[m][NO_DIMENSIONS] 
+  /* SURVIVAL SELECTION (2)
+  Method to pick m survivors out of a population of size l via (m,l)-selection
+  population[m+l][NO_DIMENSIONS]
+  returns double[m][NO_DIMENSIONS] 
 
      NB: l needs to be larger than m. This will throw OutOfBounds otherwise */
   public double[][] ml_selection(double[][] offspring, int m) {
@@ -194,6 +196,35 @@ public class player15 implements ContestSubmission
       System.arraycopy(offspring[index], 0, survivors[i], 0, NO_DIMENSIONS);
     }
     return survivors;
+  }
+
+
+  /* RECOMBINATION
+  Method of recombining two parents genes into a single child.
+  parent1 = x, parent2 = y
+  Check samenvatting/boek voor uitleg formules
+  */
+  public double[] blend_crossover(double[]parent1, double[] parent2) {
+    double difference[] = new double[NO_DIMENSIONS];
+    double a = 0.5;
+    
+    for (int i = 0; i<NO_DIMENSIONS; i++) {
+      if (parent1[i] > parent2[i]) {
+        difference[i] = parent1[i] - parent2[i];
+      } else {
+        difference[i] = parent2[i] - parent1[i];
+      }
+    }
+
+    double u = Math.random();   //Wellicht aanpassen naar andere random functie?
+    double gamma = (1-2*a)*u-a;
+    double child[] = new double[NO_DIMENSIONS];
+
+    for (i = 0; i<NO_DIMENSIONS; i++) {
+      child[i] = (1-gamma)*parent1[i]+gamma*parent2[i];
+    }
+
+    return child;
   }
   
 
@@ -223,7 +254,9 @@ public class player15 implements ContestSubmission
         while (evals<evaluations_limit_) {
             // Select parents
             // Apply crossover / mutation operators
-            /* Using uncorrelated mutation with n step sizes */   
+            
+            /* MUTATION
+            Using uncorrelated mutation with n step sizes */   
             double t = 1. / Math.sqrt(2 * Math.sqrt((double)NO_DIMENSIONS));
             double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
             double new_dev;
