@@ -232,7 +232,9 @@ returns double[m][NO_DIMENSIONS] */
     }
     /*
      ADD STANDARD DEVIATIONS
-	*/
+	   */
+    init_std_devs(child);
+
     return child;
   }
 
@@ -259,7 +261,9 @@ returns double[m][NO_DIMENSIONS] */
   	}
   	/*
      ADD STANDARD DEVIATIONS
-	*/
+	   */
+    init_std_devs(child);
+    
   	return child;	//return children;
   }
 
@@ -283,6 +287,15 @@ returns double[m][NO_DIMENSIONS] */
     return individual;
   }
 
+  /* Initialize standard deviations for some individual */
+  public void init_std_devs(double[] individual) {
+    for(int i = 0; i < NO_DIMENSIONS; i++) {
+      /* Using a random value between [0,1] for now */
+      individual[NO_DIMENSIONS + i] = rnd_.nextDouble();
+    } 
+  }
+
+  /* Initalizes all individuals in the population. Also calls init_std_devs() */
   public void init_population(double[][] population, int pop_size) {
     /* All dummy values for now */
 
@@ -295,12 +308,9 @@ returns double[m][NO_DIMENSIONS] */
       }
 
       /* Init standard deviations */
-      for(int j = 0; j < NO_DIMENSIONS; j++) {
-        population[i][NO_DIMENSIONS + j] = rnd_.nextDouble();
-      }      
+      init_std_devs(population[i]);
     }
-  }
-  
+  }  
 
 	public void run()
 	{
