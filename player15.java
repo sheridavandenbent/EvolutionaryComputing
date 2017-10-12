@@ -263,13 +263,13 @@ returns double[m][NO_DIMENSIONS] */
      ADD STANDARD DEVIATIONS
 	   */
     init_std_devs(child);
-    
+
   	return child;	//return children;
   }
 
   /* MUTATION
     Using uncorrelated mutation with n step sizes */     
-  public double[] uncorrelated_mutation(double[] individual) {
+  public void uncorrelated_mutation(double[] individual) {
     double new_dev;
 
     for(int i = 0; i< NO_DIMENSIONS; i++) {
@@ -283,8 +283,6 @@ returns double[m][NO_DIMENSIONS] */
       /* Update chromosome value */
       individual[i] += individual[NO_DIMENSIONS + i] * Math.random();
     }
-
-    return individual;
   }
 
   /* Initialize standard deviations for some individual */
@@ -312,37 +310,48 @@ returns double[m][NO_DIMENSIONS] */
     }
   }  
 
+  /* Method to calculate the fitness for every individual in a population. 
+    Returns the total number of evaluations up to now */
+  public int calc_fitness(double[] fitnesses, int evals) {
+    double to_eval[] = new double[NO_DIMENSIONS];
+    for(int i = 0; i < pop_size; i++) {
+      /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
+      System.arraycopy(population[0], 0, to_eval, 0, NO_DIMENSIONS);
+
+      fitnesses[i] = (double) evaluation_.evaluate(to_eval)
+      evals++;
+    }
+
+    return evals;
+  }
+
 	public void run()
 	{
 		// Run your algorithm here
-        setSeed(5);
-        int evals = 0, pop_size = 2; /* Or whatever pop_size should be */
-        double population[][] = new double[pop_size][2 * NO_DIMENSIONS];
-        // init population
-        init_population(population, pop_size);
+    setSeed(5);
+    int evals = 0, pop_size = 2; /* Or whatever pop_size should be */
+    double population[][] = new double[pop_size][2 * NO_DIMENSIONS];
+    // init population
+    init_population(population, pop_size);
 
-        for(int i = 0; i < pop_size; i++) {
-          for(int j = 0; j < NO_DIMENSIONS; j++) {
-            System.out.print(population[i][j] + ", ");
-          }
-          System.out.println();
-        }
-        
-        // calculate fitness
-        while (evals<evaluations_limit_) {
-            // Select parents
-            // Apply crossover / mutation operators
+    for(int i = 0; i < pop_size; i++) {
+      for(int j = 0; j < NO_DIMENSIONS; j++) {
+        System.out.print(population[i][j] + ", ");
+      }
+      System.out.println();
+    }
+    
+    // calculate fitness
+    double fitnesses[] = new double[pop_size];
+    evals = calc_fitness(fitnesses, evals);
+    
+    while (evals<evaluations_limit_) {
+        // Select parents
+        // Apply crossover / mutation operators
 
-            // Check fitness of unknown fuction
-
-            /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
-            double to_eval[] = new double[NO_DIMENSIONS];
-            System.arraycopy(population[0], 0, to_eval, 0, NO_DIMENSIONS);
-
-            Double fitness = (double) evaluation_.evaluate(to_eval);
-            evals++;
-            // Select survivors
-        }
-
+        // Check fitness of unknown fuction
+        evals = calc_fitness(fitnesses, evals);
+        // Select survivors
+    }
 	}
 }
