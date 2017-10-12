@@ -206,14 +206,11 @@ returns double[m][NO_DIMENSIONS] */
     return survivors;
   }
 
-
-  /* RECOMBINATION
-  Method of recombining two parents genes into a single child.
-  parent1 = x, parent2 = y
-  Check samenvatting/boek voor uitleg formules
+  /* RECOMBINATION (1)
+  Possible to change to producing 2 children (only viable if a != 0.5)
   */
-  public double[] blend_crossover(double[] parent1, double[] parent2) {
-    double difference[] = new double[NO_DIMENSIONS];
+  public double[] blend_crossover(double[] parent1, double[] parent2) { //double[][]
+    double difference[] = new double[2*NO_DIMENSIONS];  // double[][] children = new double[2][NO_DIMENSIONS];
     double a = 0.5;
     
     for (int i = 0; i<NO_DIMENSIONS; i++) {
@@ -226,13 +223,44 @@ returns double[m][NO_DIMENSIONS] */
 
     double u = Math.random();   //Wellicht aanpassen naar andere random functie?
     double gamma = (1-2*a)*u-a;
-    double child[] = new double[NO_DIMENSIONS];
+    double child[] = new double[2*NO_DIMENSIONS];
 
-    for (int i = 0; i<NO_DIMENSIONS; i++) {
-      child[i] = (1-gamma)*parent1[i]+gamma*parent2[i];
+    for (i = 0; i<NO_DIMENSIONS; i++) {
+      child[i] = (1-gamma)*parent1[i] + gamma*parent2[i];
+      // children[0][i] = (1-gamma)*parent1[i] + gamma*parent2[i];
+      // children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
     }
-
+    /*
+     ADD STANDARD DEVIATIONS
+	*/
     return child;
+  }
+
+  /* RECOMBINATION (2)
+  Produces a single child - may be changed to produce 2 different children if a != 0.5
+  */
+  public double[] whole_arithmetic(double[] parent1, double[] parent2) { //double[][]
+  	double[] child = new double[NO_DIMENSIONS]; 	// double[][] children = new double[2][NO_DIMENSIONS];
+  	double a = 0.5;		// If changed, two children will have to be created
+  	double sum1 = 0;
+  	double sum2 = 0;
+
+  	for (i = 0; i < NO_DIMENSIONS; i++) {
+  		sum1 = sum1 + parent1[i];
+  		sum2 = sum2 + parent2[i];
+  	}
+  	double weighted_sum_1 = sum1 / parent1.length;
+  	double weighted_sum_2 = sum2 / parent2.length;
+
+  	for (i = 0; i < NO_DIMENSIONS; i++) {
+  		child[i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
+  		// children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
+  		// children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
+  	}
+  	/*
+     ADD STANDARD DEVIATIONS
+	*/
+  	return child;	//return children;
   }
 
   /* MUTATION
