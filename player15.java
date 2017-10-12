@@ -42,7 +42,13 @@ public class player15 implements ContestSubmission
 	Random rnd_;
 	ContestEvaluation evaluation_;
     private int evaluations_limit_;
+
+  /* Globals */
   private static final int NO_DIMENSIONS = 10;
+  private static final double t = 1. / Math.sqrt(2 * Math.sqrt((double)NO_DIMENSIONS));
+  private static final double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
+  private static final double std_dev_mutation = Math.pow(Math.E, tp * Math.random() + t * Math.random());
+  private static final double std_dev_th = 0.1;
 
 	public player15()
 	{
@@ -83,6 +89,8 @@ public class player15 implements ContestSubmission
         //
         // BentCigar
         // Evaluations: 10000
+        // Evaluations are NOT the number of cycles,
+        // but the number of times you are allowed to call evaluate()
         // Regular: false
         // Multimodal: false
         // Separable: false
@@ -226,6 +234,26 @@ returns double[m][NO_DIMENSIONS] */
 
     return child;
   }
+
+  /* MUTATION
+    Using uncorrelated mutation with n step sizes */     
+  public double[] uncorrelated_mutation(double[] individual) {
+    double new_dev;
+
+    for(int i = 0; i< NO_DIMENSIONS; i++) {
+      /* Update standard deviation */
+      new_dev = individual[NO_DIMENSIONS + i] * std_dev_mutation;
+      
+      /* If smaller than threshold, set it to threshold */
+      if(new_dev < std_dev_th) new_dev = std_dev_th;
+      individual[NO_DIMENSIONS + i] = new_dev;
+
+      /* Update chromosome value */
+      individual[i] += individual[NO_DIMENSIONS + i] * Math.random();
+    }
+
+    return individual;
+  }
   
 
 	public void run()
@@ -236,7 +264,9 @@ returns double[m][NO_DIMENSIONS] */
         
         // init population
         /* All dummy values for now */
-        double child[] = new double[NO_DIMENSIONS];  
+
+        /* Init chromosomes between [-5,5] */
+        double child[] = new double[2 * NO_DIMENSIONS]; /* Extend this to twice NO_DIMENSIONS so we have room for the std_devs */
         for(int i = 0; i< NO_DIMENSIONS; i++) {
           boolean neg = rnd_.nextDouble() > 0.5;
           child[i] = 5 * rnd_.nextDouble();
@@ -244,37 +274,23 @@ returns double[m][NO_DIMENSIONS] */
           System.out.print(child[i] + ", ");
         }
 
-        double std_devs[] = new double[NO_DIMENSIONS];
+        /* Init standard deviations */
         for(int i = 0; i< NO_DIMENSIONS; i++) {
-          std_devs[i] = rnd_.nextDouble();
+          child[NO_DIMENSIONS + i] = rnd_.nextDouble();
         }
-        double std_dev_th = 0.1;
 
         // calculate fitness
         while (evals<evaluations_limit_) {
             // Select parents
             // Apply crossover / mutation operators
-            
-            /* MUTATION
-            Using uncorrelated mutation with n step sizes */   
-            double t = 1. / Math.sqrt(2 * Math.sqrt((double)NO_DIMENSIONS));
-            double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
-            double new_dev;
-
-            for(int i = 0; i< NO_DIMENSIONS; i++) {
-              /* Update standard deviation */
-              new_dev = std_devs[i] * Math.pow(Math.E, tp * Math.random() + t * Math.random());
-              
-              /* If smaller than threshold, set it to threshold */
-              if(new_dev < std_dev_th) new_dev = std_dev_th;
-              std_devs[i] = new_dev;
-
-              /* Update chromosome value */
-              child[i] += std_devs[i] * Math.random();
-            }
 
             // Check fitness of unknown fuction
-            Double fitness = (double) evaluation_.evaluate(child);
+
+            /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
+            double to_eval[] = new double[NO_DIMENSIONS];
+            System.arraycopy(child, 0, to_eval, 0, NO_DIMENSIONS);
+
+            Double fitness = (double) evaluation_.evaluate(to_eval);
             evals++;
             // Select survivors
         }
