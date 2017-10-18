@@ -225,7 +225,7 @@ returns double[m][NO_DIMENSIONS] */
     double gamma = (1-2*a)*u-a;
     double child[] = new double[2*NO_DIMENSIONS];
 
-    for (i = 0; i<NO_DIMENSIONS; i++) {
+    for (int i = 0; i<NO_DIMENSIONS; i++) {
       child[i] = (1-gamma)*parent1[i] + gamma*parent2[i];
       // children[0][i] = (1-gamma)*parent1[i] + gamma*parent2[i];
       // children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
@@ -247,14 +247,14 @@ returns double[m][NO_DIMENSIONS] */
   	double sum1 = 0;
   	double sum2 = 0;
 
-  	for (i = 0; i < NO_DIMENSIONS; i++) {
+  	for (int i = 0; i < NO_DIMENSIONS; i++) {
   		sum1 = sum1 + parent1[i];
   		sum2 = sum2 + parent2[i];
   	}
   	double weighted_sum_1 = sum1 / parent1.length;
   	double weighted_sum_2 = sum2 / parent2.length;
 
-  	for (i = 0; i < NO_DIMENSIONS; i++) {
+  	for (int i = 0; i < NO_DIMENSIONS; i++) {
   		child[i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
   		// children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
   		// children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
@@ -312,13 +312,13 @@ returns double[m][NO_DIMENSIONS] */
 
   /* Method to calculate the fitness for every individual in a population. 
     Returns the total number of evaluations up to now */
-  public int calc_fitness(double[] fitnesses, int evals) {
+  public int calc_fitness(double[][] population, double[] fitnesses, int evals) {
     double to_eval[] = new double[NO_DIMENSIONS];
-    for(int i = 0; i < pop_size; i++) {
+    for(int i = 0; i < population.length; i++) {
       /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
       System.arraycopy(population[0], 0, to_eval, 0, NO_DIMENSIONS);
 
-      fitnesses[i] = (double) evaluation_.evaluate(to_eval)
+      fitnesses[i] = (double) evaluation_.evaluate(to_eval);
       evals++;
     }
 
@@ -329,7 +329,7 @@ returns double[m][NO_DIMENSIONS] */
 	{
 		// Run your algorithm here
     setSeed(5);
-    int evals = 0, pop_size = 2; /* Or whatever pop_size should be */
+    int evals = 0, pop_size = 10; /* Or whatever pop_size should be */
     double population[][] = new double[pop_size][2 * NO_DIMENSIONS];
     // init population
     init_population(population, pop_size);
@@ -343,14 +343,14 @@ returns double[m][NO_DIMENSIONS] */
     
     // calculate fitness
     double fitnesses[] = new double[pop_size];
-    evals = calc_fitness(fitnesses, evals);
+    evals = calc_fitness(population, fitnesses, evals);
     
     while (evals<evaluations_limit_) {
         // Select parents
         // Apply crossover / mutation operators
 
         // Check fitness of unknown fuction
-        evals = calc_fitness(fitnesses, evals);
+        evals = calc_fitness(population, fitnesses, evals);
         // Select survivors
     }
 	}
