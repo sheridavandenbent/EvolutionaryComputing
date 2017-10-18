@@ -37,6 +37,23 @@ class PairD implements Comparable<PairD> {
   }
 }
 
+class UniqueRandom implements Iterable<Integer> {
+
+    private final ArrayList<Integer> arr;
+
+    public UniqueRandom(int n) {
+        arr = new ArrayList<Integer>(n);
+        for (int i = 0; i < n; i++) {
+            arr.add(i);
+        }
+        Collections.shuffle(arr);
+    }
+
+    public Iterator iterator() {
+        return arr.iterator();
+    }
+}
+
 public class player15 implements ContestSubmission
 {
 	Random rnd_;
@@ -49,6 +66,10 @@ public class player15 implements ContestSubmission
   private static final double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
   private static final double std_dev_mutation = Math.pow(Math.E, tp * Math.random() + t * Math.random());
   private static final double std_dev_th = 0.1;
+
+  /* These should be changed when we actually test it to test all combinations */
+  private static final int REPRODUCE_STYLE = 1;
+  private static final int tournament_size = 4;
 
 	public player15()
 	{
@@ -326,6 +347,52 @@ returns double[m][NO_DIMENSIONS] */
     return evals;
   }
 
+  /* PARENT SELECTION + CHILD MAKING */
+  public void reproduce(double[][] population, int pop_size, double[] fitnesses) {
+    for (int i = 0; i < pop_size; i++) { /* we want to double the population */
+        double[][] parents = tournament(population, pop_size, fitnesses);
+        double[] child;
+        if (REPRODUCE_STYLE == 1) {
+          child = blend_crossover(parents[0], parents[1]);
+        }
+        population[pop_size+i] = child;
+    }
+  }
+
+  public double[][] tournament(double[][] population, int pop_size, double[] fitnesses) {
+    UniqueRandom chooser = new UniqueRandom(pop_size);
+    double[][] participants = new double[tournament_size][2];
+    // pick the participants (random pick without replacement)
+    int j = 0;
+    for (int random_pick : chooser) {
+        participants[j][0] = random_pick;
+        participants[j][0] = fitnesses[random_pick];
+        j++;
+        if (j == tournament_size) {
+          break;
+        }
+    }
+
+    Arrays.sort(participants, new Comparator<double[]>() {
+        @Override
+        public int compare(double[] o1, double[] o2) {
+            return Double.valueOf(o1[1]).compareTo(Double.valueOf(o2[1]));
+        }
+    });
+
+    for (int i = 0; i < participants.length; i++) {
+      System.out.print(i);
+    }
+
+
+    // choose k (the tournament size) individuals from the population at random
+    // choose the best individual from pool/tournament with probability p
+    // choose the second best individual with probability p*(1-p)
+    // choose the third best individual with probability p*((1-p)^2)
+    // and so on...
+    return participants;
+  }
+
 	public void run()
 	{
 		// Run your algorithm here
@@ -349,7 +416,7 @@ returns double[m][NO_DIMENSIONS] */
     
     while (evals<evaluations_limit_) {
         // Select parents and make some babyyyyyssss
-
+        reproduce(population, pop_size, fitnesses);
         // Apply crossover / mutation operators
 
         // Check fitness of unknown fuction
