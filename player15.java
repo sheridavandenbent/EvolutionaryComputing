@@ -37,23 +37,6 @@ class PairD implements Comparable<PairD> {
   }
 }
 
-class UniqueRandom implements Iterable<Integer> {
-
-    private final ArrayList<Integer> arr;
-
-    public UniqueRandom(int n) {
-        arr = new ArrayList<Integer>(n);
-        for (int i = 0; i < n; i++) {
-            arr.add(i);
-        }
-        Collections.shuffle(arr);
-    }
-
-    public Iterator iterator() {
-        return arr.iterator();
-    }
-}
-
 public class player15 implements ContestSubmission
 {
 	Random rnd_;
@@ -360,11 +343,16 @@ returns double[m][NO_DIMENSIONS] */
   }
 
   public double[][] tournament(double[][] population, int pop_size, double[] fitnesses) {
-    UniqueRandom chooser = new UniqueRandom(pop_size);
+
+    ArrayList<Integer> arr = new ArrayList<Integer>(pop_size);
+    for (int i = 0; i < pop_size; i++) {
+        arr.add(i);
+    }
+    Collections.shuffle(arr);
     double[][] participants = new double[tournament_size][2];
     // pick the participants (random pick without replacement)
     int j = 0;
-    for (int random_pick : chooser) {
+    for (int random_pick : arr) {
         participants[j][0] = random_pick;
         participants[j][0] = fitnesses[random_pick];
         j++;
