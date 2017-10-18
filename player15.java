@@ -318,6 +318,7 @@ returns double[m][NO_DIMENSIONS] */
       /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
       System.arraycopy(population[0], 0, to_eval, 0, NO_DIMENSIONS);
 
+      /* Cherry: Should we only evaluate those that have not already been evaluated? */
       fitnesses[i] = (double) evaluation_.evaluate(to_eval);
       evals++;
     }
@@ -328,25 +329,27 @@ returns double[m][NO_DIMENSIONS] */
 	public void run()
 	{
 		// Run your algorithm here
-    setSeed(5);
+    setSeed(5); /* Or whatever this number should be */
     int evals = 0, pop_size = 10; /* Or whatever pop_size should be */
-    double population[][] = new double[pop_size][2 * NO_DIMENSIONS];
-    // init population
+    double population[][] = new double[pop_size*2][2 * NO_DIMENSIONS]; /* pop_size*2 since children also have to fit */
+    // Init population
     init_population(population, pop_size);
 
-    for(int i = 0; i < pop_size; i++) {
-      for(int j = 0; j < NO_DIMENSIONS; j++) {
-        System.out.print(population[i][j] + ", ");
-      }
-      System.out.println();
-    }
+    // // Print the starting population
+    // for(int i = 0; i < pop_size*2; i++) {
+    //   for(int j = 0; j < NO_DIMENSIONS; j++) {
+    //     System.out.print(population[i][j] + ", ");
+    //   }
+    //   System.out.println();
+    // }
     
-    // calculate fitness
-    double fitnesses[] = new double[pop_size];
+    // Calculate fitness
+    double fitnesses[] = new double[pop_size*2];
     evals = calc_fitness(population, fitnesses, evals);
     
     while (evals<evaluations_limit_) {
-        // Select parents
+        // Select parents and make some babyyyyyssss
+
         // Apply crossover / mutation operators
 
         // Check fitness of unknown fuction
