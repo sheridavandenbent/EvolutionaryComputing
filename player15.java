@@ -341,6 +341,47 @@ returns double[m][NO_DIMENSIONS] */
         population[pop_size+i] = child;
     }
   }
+  
+  public int muhCompare(double[] o1, double[] o2) {
+    return Double.valueOf(o1[1]).compareTo(Double.valueOf(o2[1]));
+  }
+
+  public void swap (double[] a, double[] b) {
+    for(int i = 0; i < a.length; i++){
+      double t = a[i];
+      a[i] = b[i];
+      b[i] = t;
+    }
+  }
+
+  public void bubbleSort(double[][] a) {
+    boolean s = false;
+    do {
+      s = false;
+      for(int i = 1; i < a.length; i++) {
+        if(muhCompare(a[i-1], a[i]) > 0) {
+          swap(a[i-1], a[i]);
+          s = true;
+        }
+      }
+    } while(s);
+  }
+
+  // public void bubbleSort(int[] a) {
+  //   boolean s = false;
+  //   do {
+  //     s = false;
+  //     for(int i = 1; i < a.length; i++) {
+  //       if(a[i-1] > a[i]) {
+  //         int tmp = a[i-1];
+  //         a[i-1] = a[i];
+  //         a[i] = tmp;
+  //         // swap(a[i-1], a[i]);
+  //         s = true;
+  //       }
+  //     }
+  //   } while(s);
+  // }
 
   public double[][] tournament(double[][] population, int pop_size, double[] fitnesses) {
 
@@ -361,12 +402,7 @@ returns double[m][NO_DIMENSIONS] */
         }
     }
 
-    Arrays.sort(participants, new Comparator<double[]>() {
-        @Override
-        public int compare(double[] o1, double[] o2) {
-            return Double.valueOf(o1[1]).compareTo(Double.valueOf(o2[1]));
-        }
-    });
+    bubbleSort(participants);
 
     for (int i = 0; i < participants.length; i++) {
       System.out.print(i);
@@ -383,6 +419,14 @@ returns double[m][NO_DIMENSIONS] */
 
 	public void run()
 	{
+    // int test[] = {35,23,62,1,6,7,3,5};
+    // bubbleSort(test);
+    // for(int item : test) {
+    //   System.out.print(item + ", ");
+    // }
+    // System.out.println();
+
+    
 		// Run your algorithm here
     setSeed(5); /* Or whatever this number should be */
     int evals = 0, pop_size = 10; /* Or whatever pop_size should be */
