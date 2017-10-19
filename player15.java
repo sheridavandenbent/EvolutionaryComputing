@@ -51,13 +51,16 @@ public class player15 implements ContestSubmission
   private final double std_dev_mutation = Math.pow(Math.E, tp * Math.random() + t * Math.random());
 
   /* These should be changed when we actually test it to test all combinations */
-  final int q = 50; /* As is typical */
-  int pop_size = 100; /* Or whatever pop_size should be */
-  private static final double std_dev_th = 0.1;
-  private static final int PARENTSELECT_STYLE = 1;
-  private static final int REPRODUCE_STYLE = 1;
-  private static final int tournament_size = 40;
-  private static final double prob_pick_best = 0.5;
+  final int q = Integer.parseInt(System.getProperty("q")); /* As is typical */
+  System.out.println(System.getProperty("pop_size"));
+  int pop_size = Integer.parseInt(System.getProperty("pop_size")); /* Or whatever pop_size should be */
+  System.out.println(System.getProperty("std_dev_th"));
+  private static final double std_dev_th = Double.parseDouble(System.getProperty("std_dev_th"));
+  private static final int PARENTSELECT_STYLE = Integer.parseInt(System.getProperty("PARENTSELECT_STYLE"));
+  private static final int REPRODUCE_STYLE = Integer.parseInt(System.getProperty("REPRODUCE_STYLE"));
+  private static final int SURVIVAL_STYLE = Integer.parseInt(System.getProperty("SURVIVAL_STYLE"));
+  private static final int tournament_size = Integer.parseInt(System.getProperty("tournament_size"));
+  private static final double prob_pick_best = Double.parseDouble(System.getProperty("prob_pick_best"));
 
   double fitnesses[] = new double[pop_size*2];
 
@@ -333,13 +336,15 @@ returns double[m][NO_DIMENSIONS] */
       double[][] parents;
       if (PARENTSELECT_STYLE == 1) { // tournament
         parents = tournament(population, pop_size);
-      } else if (PARENTSELECT_STYLE == 2) { // ranking
+      } else { // ranking
         parents = ranking(population, pop_size);
       }
       // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
       double[] child;
       if (REPRODUCE_STYLE == 1) {
         child = blend_crossover(parents[0], parents[1]);
+      } else {
+        child = whole_arithmetic(parents[0], parents[1]);
       }
 
       /* Mutation */
@@ -474,11 +479,15 @@ returns double[m][NO_DIMENSIONS] */
 
         // Select survivors
         double survivors[][] = new double[pop_size][2 * NO_DIMENSIONS];
-        survivors = ml_selection(population, pop_size);
+        if (SURVIVAL_STYLE == 1) { // ml
+          survivors = ml_selection(population, pop_size);
+        } else if (SURVIVAL_STYLE == 2) { //round robin
+          survivors = round_robin(population, pop_size);
+        }
 
         for(int i = 0; i < pop_size; i++) {
           System.arraycopy(survivors[i], 0, population[i], 0, 2 * NO_DIMENSIONS);
         }
     }
-	}
+  }
 }
