@@ -43,8 +43,6 @@ public class player15 implements ContestSubmission
   ContestEvaluation evaluation_;
   private int evaluations_limit_;
   int evals = 0;
-  int pop_size = 10; /* Or whatever pop_size should be */
-  double fitnesses[] = new double[pop_size*2];
 
   /* Globals */
   private static final int NO_DIMENSIONS = 10;
@@ -53,9 +51,13 @@ public class player15 implements ContestSubmission
   private final double std_dev_mutation = Math.pow(Math.E, tp * Math.random() + t * Math.random());
 
   /* These should be changed when we actually test it to test all combinations */
+  final int q = 50; /* As is typical */
+  int pop_size = 100; /* Or whatever pop_size should be */
   private static final double std_dev_th = 0.1;
   private static final int REPRODUCE_STYLE = 1;
-  private static final int tournament_size = 4;
+  private static final int tournament_size = 40;
+
+  double fitnesses[] = new double[pop_size*2];
 
   public player15()
   {
@@ -135,7 +137,6 @@ Method to pick m survivors out of a population of size m + l via round-robin
 population[m+l][NO_DIMENSIONS]
 returns double[m][NO_DIMENSIONS] */
   public double[][] round_robin(double[][] population, int m) {
-    final int q = 10; /* As is typical */
     final int pop_size = population.length;
 
     /* Create an array containing <index, wins> pairs.
@@ -166,7 +167,7 @@ returns double[m][NO_DIMENSIONS] */
     }
 
     /* Sort results */
-    Arrays.sort(results);
+    Arrays.sort(results, Collections.reverseOrder());
 
     /* Select the m survivors and return them */
     double survivors[][] = new double[m][2 * NO_DIMENSIONS];
@@ -175,7 +176,6 @@ returns double[m][NO_DIMENSIONS] */
       int index = results[i].index;
       System.arraycopy(population[index], 0, survivors[i], 0, 2 * NO_DIMENSIONS);
       fit[i] = fitnesses[index];
-      System.out.println("fit[]" + fit[i]);
     }
     System.arraycopy(fit, 0, fitnesses, 0, m);
     return survivors;
@@ -191,23 +191,26 @@ returns double[m][NO_DIMENSIONS] */
     final int off_size = offspring.length;
 
     /* Compute fitness for every individual and add to results array*/
-    double fit;
+    double fitness;
     PairD results[] = new PairD[off_size];
 
     for(int i = 0; i < off_size; i++) {
-      fit = fitnesses[i];
-      results[i] = new PairD(i, fit);
+      fitness = fitnesses[i];
+      results[i] = new PairD(i, fitness);
     }
 
     /* Sort results */
-    Arrays.sort(results);
+    Arrays.sort(results, Collections.reverseOrder());
 
     /* Select the m survivors and return them */
-    double survivors[][] = new double[m][NO_DIMENSIONS];
+    double survivors[][] = new double[m][2 * NO_DIMENSIONS];
+    double fit[] = new double[m];
     for(int i = 0; i < m; i++) {
       int index = results[i].index;
-      System.arraycopy(offspring[index], 0, survivors[i], 0, NO_DIMENSIONS);
+      System.arraycopy(offspring[index], 0, survivors[i], 0, 2 * NO_DIMENSIONS);
+      fit[i] = fitnesses[index];  
     }
+    System.arraycopy(fit, 0, fitnesses, 0, m);
     return survivors;
   }
 
@@ -358,7 +361,7 @@ returns double[m][NO_DIMENSIONS] */
     do {
       s = false;
       for(int i = 1; i < a.length; i++) {
-        if(muhCompare(a[i-1], a[i]) > 0) {
+        if(muhCompare(a[i-1], a[i]) < 0) {
           swap(a[i-1], a[i]);
           s = true;
         }
@@ -427,24 +430,14 @@ returns double[m][NO_DIMENSIONS] */
 
         // Check fitness of unknown fuction
         evals = calc_fitness(population, evals, 1);
-        
-        System.out.println("Fitnesses: ");
-        for(int i = 0; i< fitnesses.length; i++) {
-          System.out.println(i + ": " +fitnesses[i] + ", ");
-        }
-        System.out.println();
+
         // Select survivors
         double survivors[][] = new double[pop_size][2 * NO_DIMENSIONS];
-        survivors = round_robin(population, pop_size);
+        survivors = ml_selection(population, pop_size);
 
         for(int i = 0; i < pop_size; i++) {
           System.arraycopy(survivors[i], 0, population[i], 0, 2 * NO_DIMENSIONS);
         }
-        System.out.println("Fitnesses: ");
-        for(int i = 0; i< fitnesses.length; i++) {
-          System.out.println(i + ": " +fitnesses[i] + ", ");
-        }
-        System.out.println();
     }
 	}
 }
