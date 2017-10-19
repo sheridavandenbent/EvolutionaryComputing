@@ -138,7 +138,10 @@ returns double[m][NO_DIMENSIONS] */
     /* Pre-compute fitness for every individual */
     double fit[] = new double[pop_size];
     for(int i = 0; i < pop_size; i++) {
-      fit[i] = (double) evaluation_.evaluate(population[i]);
+      double[] to_eval = new double[NO_DIMENSIONS];
+      System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
+      System.out.println(to_eval.length);
+      fit[i] = (double) evaluation_.evaluate(to_eval);
     }
 
     /* Create an array containing <index, wins> pairs.
@@ -172,10 +175,10 @@ returns double[m][NO_DIMENSIONS] */
     Arrays.sort(results);
 
     /* Select the m survivors and return them */
-    double survivors[][] = new double[m][NO_DIMENSIONS];
+    double survivors[][] = new double[m][2 * NO_DIMENSIONS];
     for(int i = 0; i < m; i++) {
       int index = results[i].index;
-      System.arraycopy(population[index], 0, survivors[i], 0, NO_DIMENSIONS);
+      System.arraycopy(population[index], 0, survivors[i], 0, 2 * NO_DIMENSIONS);
     }
     return survivors;
   }
@@ -214,10 +217,10 @@ returns double[m][NO_DIMENSIONS] */
   Possible to change to producing 2 children (only viable if a != 0.5)
   */
   public double[] blend_crossover(double[] parent1, double[] parent2) { //double[][]
-    double difference[] = new double[2*NO_DIMENSIONS];  // double[][] children = new double[2][NO_DIMENSIONS];
+    double difference[] = new double[2 * NO_DIMENSIONS];  // double[][] children = new double[2][NO_DIMENSIONS];
     double a = 0.5;
     
-    for (int i = 0; i<NO_DIMENSIONS; i++) {
+    for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
       if (parent1[i] > parent2[i]) {
         difference[i] = parent1[i] - parent2[i];
       } else {
@@ -226,18 +229,14 @@ returns double[m][NO_DIMENSIONS] */
     }
 
     double u = Math.random();   //Wellicht aanpassen naar andere random functie?
-    double gamma = (1-2*a)*u-a;
-    double child[] = new double[2*NO_DIMENSIONS];
+    double gamma = (1 - 2 * a) * u - a;
+    double child[] = new double[2 * NO_DIMENSIONS];
 
-    for (int i = 0; i<NO_DIMENSIONS; i++) {
-      child[i] = (1-gamma)*parent1[i] + gamma*parent2[i];
+    for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
+      child[i] = (1 - gamma) * parent1[i] + gamma * parent2[i];
       // children[0][i] = (1-gamma)*parent1[i] + gamma*parent2[i];
       // children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
     }
-    /*
-     ADD STANDARD DEVIATIONS
-	   */
-    init_std_devs(child);
 
     return child;
   }
@@ -246,27 +245,23 @@ returns double[m][NO_DIMENSIONS] */
   Produces a single child - may be changed to produce 2 different children if a != 0.5
   */
   public double[] whole_arithmetic(double[] parent1, double[] parent2) { //double[][]
-  	double[] child = new double[NO_DIMENSIONS]; 	// double[][] children = new double[2][NO_DIMENSIONS];
+  	double[] child = new double[2 * NO_DIMENSIONS]; 	// double[][] children = new double[2][NO_DIMENSIONS];
   	double a = 0.5;		// If changed, two children will have to be created
   	double sum1 = 0;
   	double sum2 = 0;
 
-  	for (int i = 0; i < NO_DIMENSIONS; i++) {
+  	for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
   		sum1 = sum1 + parent1[i];
   		sum2 = sum2 + parent2[i];
   	}
   	double weighted_sum_1 = sum1 / parent1.length;
   	double weighted_sum_2 = sum2 / parent2.length;
 
-  	for (int i = 0; i < NO_DIMENSIONS; i++) {
+  	for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
   		child[i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
   		// children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
   		// children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
   	}
-  	/*
-     ADD STANDARD DEVIATIONS
-	   */
-    init_std_devs(child);
 
   	return child;	//return children;
   }
@@ -320,7 +315,7 @@ returns double[m][NO_DIMENSIONS] */
     double to_eval[] = new double[NO_DIMENSIONS];
     for(int i = 0; i < population.length; i++) {
       /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
-      System.arraycopy(population[0], 0, to_eval, 0, NO_DIMENSIONS);
+      System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
 
       /* Cherry: Should we only evaluate those that have not already been evaluated? */
       fitnesses[i] = (double) evaluation_.evaluate(to_eval);
@@ -334,19 +329,22 @@ returns double[m][NO_DIMENSIONS] */
   public void reproduce(double[][] population, int pop_size, double[] fitnesses) {
     for (int i = 0; i < pop_size; i++) { /* we want to double the population */
         double[][] parents = tournament(population, pop_size, fitnesses);
+        // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
         double[] child;
         if (REPRODUCE_STYLE == 1) {
           child = blend_crossover(parents[0], parents[1]);
         }
+        // System.out.println("CHild length: " + child.length);
         population[pop_size+i] = child;
     }
   }
   
+  /* Helper functions because nobody likes Comparators */
   public int muhCompare(double[] o1, double[] o2) {
     return Double.valueOf(o1[1]).compareTo(Double.valueOf(o2[1]));
   }
 
-  public void swap (double[] a, double[] b) {
+  public void swap(double[] a, double[] b) {
     for(int i = 0; i < a.length; i++){
       double t = a[i];
       a[i] = b[i];
@@ -367,22 +365,6 @@ returns double[m][NO_DIMENSIONS] */
     } while(s);
   }
 
-  // public void bubbleSort(int[] a) {
-  //   boolean s = false;
-  //   do {
-  //     s = false;
-  //     for(int i = 1; i < a.length; i++) {
-  //       if(a[i-1] > a[i]) {
-  //         int tmp = a[i-1];
-  //         a[i-1] = a[i];
-  //         a[i] = tmp;
-  //         // swap(a[i-1], a[i]);
-  //         s = true;
-  //       }
-  //     }
-  //   } while(s);
-  // }
-
   public double[][] tournament(double[][] population, int pop_size, double[] fitnesses) {
 
     ArrayList<Integer> arr = new ArrayList<Integer>(pop_size);
@@ -395,7 +377,7 @@ returns double[m][NO_DIMENSIONS] */
     int j = 0;
     for (int random_pick : arr) {
         participants[j][0] = random_pick;
-        participants[j][0] = fitnesses[random_pick];
+        participants[j][1] = fitnesses[random_pick];
         j++;
         if (j == tournament_size) {
           break;
@@ -404,31 +386,23 @@ returns double[m][NO_DIMENSIONS] */
 
     bubbleSort(participants);
 
-    for (int i = 0; i < participants.length; i++) {
-      System.out.print(i);
-    }
+    double[][] parents = new double[2][NO_DIMENSIONS * 2];
 
+    System.arraycopy(population[(int)participants[0][0]], 0, parents[0], 0, 2 * NO_DIMENSIONS);
+    System.arraycopy(population[(int)participants[1][0]], 0, parents[1], 0, 2 * NO_DIMENSIONS);
 
     // choose k (the tournament size) individuals from the population at random
     // choose the best individual from pool/tournament with probability p
     // choose the second best individual with probability p*(1-p)
     // choose the third best individual with probability p*((1-p)^2)
     // and so on...
-    return participants;
+    return parents;
   }
 
 	public void run()
 	{
-    // int test[] = {35,23,62,1,6,7,3,5};
-    // bubbleSort(test);
-    // for(int item : test) {
-    //   System.out.print(item + ", ");
-    // }
-    // System.out.println();
-
-    
 		// Run your algorithm here
-    setSeed(5); /* Or whatever this number should be */
+    setSeed(3); /* Or whatever this number should be */
     int evals = 0, pop_size = 10; /* Or whatever pop_size should be */
     double population[][] = new double[pop_size*2][2 * NO_DIMENSIONS]; /* pop_size*2 since children also have to fit */
     // Init population
@@ -448,12 +422,20 @@ returns double[m][NO_DIMENSIONS] */
     
     while (evals<evaluations_limit_) {
         // Select parents and make some babyyyyyssss
-        reproduce(population, pop_size, fitnesses);
         // Apply crossover / mutation operators
+        reproduce(population, pop_size, fitnesses);
 
         // Check fitness of unknown fuction
         evals = calc_fitness(population, fitnesses, evals);
+        
         // Select survivors
+        double lamePlaceholder[][] = new double[pop_size][2 * NO_DIMENSIONS];
+        lamePlaceholder = round_robin(population, pop_size);
+
+        for(int i = 0; i < pop_size; i++) {
+          System.arraycopy(lamePlaceholder[i], 0, population[i], 0, 2 * NO_DIMENSIONS);
+        }
+        System.out.println("Evals: " + evals);
     }
 	}
 }
