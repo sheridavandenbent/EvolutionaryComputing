@@ -41,7 +41,8 @@ public class player15 implements ContestSubmission
 {
 	Random rnd_;
 	ContestEvaluation evaluation_;
-    private int evaluations_limit_;
+  private int evaluations_limit_;
+  int evals = 0;
 
   /* Globals */
   private static final int NO_DIMENSIONS = 10;
@@ -140,8 +141,8 @@ returns double[m][NO_DIMENSIONS] */
     for(int i = 0; i < pop_size; i++) {
       double[] to_eval = new double[NO_DIMENSIONS];
       System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
-      System.out.println(to_eval.length);
       fit[i] = (double) evaluation_.evaluate(to_eval);
+      evals++;
     }
 
     /* Create an array containing <index, wins> pairs.
@@ -403,7 +404,7 @@ returns double[m][NO_DIMENSIONS] */
 	{
 		// Run your algorithm here
     setSeed(3); /* Or whatever this number should be */
-    int evals = 0, pop_size = 10; /* Or whatever pop_size should be */
+    int pop_size = 10; /* Or whatever pop_size should be */
     double population[][] = new double[pop_size*2][2 * NO_DIMENSIONS]; /* pop_size*2 since children also have to fit */
     // Init population
     init_population(population, pop_size);
