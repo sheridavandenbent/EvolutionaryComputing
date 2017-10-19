@@ -39,40 +39,42 @@ class PairD implements Comparable<PairD> {
 
 public class player15 implements ContestSubmission
 {
-	Random rnd_;
-	ContestEvaluation evaluation_;
+  Random rnd_;
+  ContestEvaluation evaluation_;
   private int evaluations_limit_;
   int evals = 0;
+  int pop_size = 10; /* Or whatever pop_size should be */
+  double fitnesses[] = new double[pop_size*2];
 
   /* Globals */
   private static final int NO_DIMENSIONS = 10;
   private final double t = 1. / Math.sqrt(2 * Math.sqrt((double)NO_DIMENSIONS));
   private final double tp = 1. / Math.sqrt((double) 2 * NO_DIMENSIONS);
   private final double std_dev_mutation = Math.pow(Math.E, tp * Math.random() + t * Math.random());
-  private static final double std_dev_th = 0.1;
 
   /* These should be changed when we actually test it to test all combinations */
+  private static final double std_dev_th = 0.1;
   private static final int REPRODUCE_STYLE = 1;
   private static final int tournament_size = 4;
 
-	public player15()
-	{
-		rnd_ = new Random();
-	}
-	
-	public void setSeed(long seed)
-	{
-		// Set seed of algortihms random process
-		rnd_.setSeed(seed);
-	}
+  public player15()
+  {
+    rnd_ = new Random();
+  }
+  
+  public void setSeed(long seed)
+  {
+    // Set seed of algortihms random process
+    rnd_.setSeed(seed);
+  }
 
-	public void setEvaluation(ContestEvaluation evaluation)
-	{
-		// Set evaluation problem used in the run
-		evaluation_ = evaluation;
-		
-		// Get evaluation properties
-		Properties props = evaluation.getProperties();
+  public void setEvaluation(ContestEvaluation evaluation)
+  {
+    // Set evaluation problem used in the run
+    evaluation_ = evaluation;
+    
+    // Get evaluation properties
+    Properties props = evaluation.getProperties();
 
         // This can be used to check for properties
         // Enumeration keys = props.keys();
@@ -84,8 +86,8 @@ public class player15 implements ContestSubmission
 
         // Get evaluation limit
         evaluations_limit_ = Integer.parseInt(props.getProperty("Evaluations"));
-		// Property keys depend on specific evaluation
-		// E.g. double param = Double.parseDouble(props.getProperty("property_name"));
+    // Property keys depend on specific evaluation
+    // E.g. double param = Double.parseDouble(props.getProperty("property_name"));
         boolean isMultimodal = Boolean.parseBoolean(props.getProperty("Multimodal"));
         boolean hasStructure = Boolean.parseBoolean(props.getProperty("Regular"));
         boolean isSeparable = Boolean.parseBoolean(props.getProperty("Separable"));
@@ -112,7 +114,7 @@ public class player15 implements ContestSubmission
         // Multimodal: true
         // Separable: false
 
-		// Do sth with property values, e.g. specify relevant settings of your algorithm
+    // Do sth with property values, e.g. specify relevant settings of your algorithm
         if (isMultimodal) {
             // Do sth
         } else {
@@ -132,7 +134,7 @@ public class player15 implements ContestSubmission
 Method to pick m survivors out of a population of size m + l via round-robin
 population[m+l][NO_DIMENSIONS]
 returns double[m][NO_DIMENSIONS] */
-  public double[][] round_robin(double[][] population, double[] fit, int m) {
+  public double[][] round_robin(double[][] population, int m) {
     final int q = 10; /* As is typical */
     final int pop_size = population.length;
 
@@ -154,7 +156,7 @@ returns double[m][NO_DIMENSIONS] */
         } while(opp == i || contains(prev_opps, opp));
 
         /* FIGHT! */
-        if(fit[i] > fit[opp])
+        if(fitnesses[i] > fitnesses[opp])
           wins++;
 
         /* Add to fought opponents */
@@ -168,13 +170,14 @@ returns double[m][NO_DIMENSIONS] */
 
     /* Select the m survivors and return them */
     double survivors[][] = new double[m][2 * NO_DIMENSIONS];
-    double fitnesses[] = new double[m];
+    double fit[] = new double[m];
     for(int i = 0; i < m; i++) {
       int index = results[i].index;
       System.arraycopy(population[index], 0, survivors[i], 0, 2 * NO_DIMENSIONS);
-      fitnesses[i] = fit[index];
+      fit[i] = fitnesses[index];
+      System.out.println("fit[]" + fit[i]);
     }
-    System.arraycopy(fitnesses, 0, fit, 0, m);
+    System.arraycopy(fit, 0, fitnesses, 0, m);
     return survivors;
   }
 
@@ -184,7 +187,7 @@ returns double[m][NO_DIMENSIONS] */
   returns double[m][NO_DIMENSIONS] 
 
      NB: l needs to be larger than m. This will throw OutOfBounds otherwise */
-  public double[][] ml_selection(double[][] offspring, double[] fitnesses, int m) {
+  public double[][] ml_selection(double[][] offspring, int m) {
     final int off_size = offspring.length;
 
     /* Compute fitness for every individual and add to results array*/
@@ -223,7 +226,7 @@ returns double[m][NO_DIMENSIONS] */
       }
     }
 
-    double u = rnd_.nextDouble();   //Wellicht aanpassen naar andere random functie?
+    double u = rnd_.nextDouble();
     double gamma = (1 - 2 * a) * u - a;
     double child[] = new double[2 * NO_DIMENSIONS];
 
@@ -240,25 +243,25 @@ returns double[m][NO_DIMENSIONS] */
   Produces a single child - may be changed to produce 2 different children if a != 0.5
   */
   public double[] whole_arithmetic(double[] parent1, double[] parent2) { //double[][]
-  	double[] child = new double[2 * NO_DIMENSIONS]; 	// double[][] children = new double[2][NO_DIMENSIONS];
-  	double a = 0.5;		// If changed, two children will have to be created
-  	double sum1 = 0;
-  	double sum2 = 0;
+    double[] child = new double[2 * NO_DIMENSIONS];   // double[][] children = new double[2][NO_DIMENSIONS];
+    double a = 0.5;   // If changed, two children will have to be created
+    double sum1 = 0;
+    double sum2 = 0;
 
-  	for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
-  		sum1 = sum1 + parent1[i];
-  		sum2 = sum2 + parent2[i];
-  	}
-  	double weighted_sum_1 = sum1 / parent1.length;
-  	double weighted_sum_2 = sum2 / parent2.length;
+    for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
+      sum1 = sum1 + parent1[i];
+      sum2 = sum2 + parent2[i];
+    }
+    double weighted_sum_1 = sum1 / parent1.length;
+    double weighted_sum_2 = sum2 / parent2.length;
 
-  	for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
-  		child[i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
-  		// children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
-  		// children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
-  	}
+    for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
+      child[i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
+      // children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
+      // children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
+    }
 
-  	return child;	//return children;
+    return child; //return children;
   }
 
   /* MUTATION
@@ -282,8 +285,8 @@ returns double[m][NO_DIMENSIONS] */
   /* Initialize standard deviations for some individual */
   public void init_std_devs(double[] individual) {
     for(int i = 0; i < NO_DIMENSIONS; i++) {
-      /* Using a random value between [0,1] for now */
-      individual[NO_DIMENSIONS + i] = rnd_.nextDouble();
+      /* Using a random value between [0,2] for now */
+      individual[NO_DIMENSIONS + i] = 2 * rnd_.nextDouble();
     } 
   }
 
@@ -306,14 +309,12 @@ returns double[m][NO_DIMENSIONS] */
 
   /* Method to calculate the fitness for every individual in a population. 
     Returns the total number of evaluations up to now */
-  public int calc_fitness(double[][] population, double[] fitnesses, int evals, int half) {
+  public int calc_fitness(double[][] population, int evals, int half) {
     double to_eval[] = new double[NO_DIMENSIONS];
-    int pop_size = population.length / 2; 
     for(int i = pop_size * half; i < pop_size + pop_size * half; i++) {
       /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
       System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
 
-      /* Cherry: Should we only evaluate those that have not already been evaluated? */
       fitnesses[i] = (double) evaluation_.evaluate(to_eval);
       evals++;
     }
@@ -322,9 +323,9 @@ returns double[m][NO_DIMENSIONS] */
   }
 
   /* PARENT SELECTION + CHILD MAKING */
-  public void reproduce(double[][] population, int pop_size, double[] fitnesses) {
+  public void reproduce(double[][] population, int pop_size) {
     for (int i = 0; i < pop_size; i++) { /* we want to double the population */
-        double[][] parents = tournament(population, pop_size, fitnesses);
+        double[][] parents = tournament(population, pop_size);
         // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
         double[] child;
         if (REPRODUCE_STYLE == 1) {
@@ -365,7 +366,7 @@ returns double[m][NO_DIMENSIONS] */
     } while(s);
   }
 
-  public double[][] tournament(double[][] population, int pop_size, double[] fitnesses) {
+  public double[][] tournament(double[][] population, int pop_size) {
 
     ArrayList<Integer> arr = new ArrayList<Integer>(pop_size);
     for (int i = 0; i < pop_size; i++) {
@@ -399,11 +400,10 @@ returns double[m][NO_DIMENSIONS] */
     return parents;
   }
 
-	public void run()
-	{
-		// Run your algorithm here
-    setSeed(3); /* Or whatever this number should be */
-    int pop_size = 100; /* Or whatever pop_size should be */
+  public void run()
+  {
+    // Run your algorithm here
+    setSeed(68); /* Or whatever this number should be */
     double population[][] = new double[pop_size*2][2 * NO_DIMENSIONS]; /* pop_size*2 since children also have to fit */
     // Init population
     init_population(population, pop_size);
@@ -417,24 +417,34 @@ returns double[m][NO_DIMENSIONS] */
     // }
     
     // Calculate fitness
-    double fitnesses[] = new double[pop_size*2];
-    evals = calc_fitness(population, fitnesses, evals, 0);
+    evals = calc_fitness(population, evals, 0);
     
     while (evals<evaluations_limit_) {
         // Select parents and make some babyyyyyssss
         // Apply crossover / mutation operators
-        reproduce(population, pop_size, fitnesses);
+        reproduce(population, pop_size);
+
 
         // Check fitness of unknown fuction
-        evals = calc_fitness(population, fitnesses, evals, 1);
+        evals = calc_fitness(population, evals, 1);
         
+        System.out.println("Fitnesses: ");
+        for(int i = 0; i< fitnesses.length; i++) {
+          System.out.println(i + ": " +fitnesses[i] + ", ");
+        }
+        System.out.println();
         // Select survivors
-        double lamePlaceholder[][] = new double[pop_size][2 * NO_DIMENSIONS];
-        lamePlaceholder = round_robin(population, fitnesses, 2 * pop_size);
+        double survivors[][] = new double[pop_size][2 * NO_DIMENSIONS];
+        survivors = round_robin(population, pop_size);
 
         for(int i = 0; i < pop_size; i++) {
-          System.arraycopy(lamePlaceholder[i], 0, population[i], 0, 2 * NO_DIMENSIONS);
+          System.arraycopy(survivors[i], 0, population[i], 0, 2 * NO_DIMENSIONS);
         }
+        System.out.println("Fitnesses: ");
+        for(int i = 0; i< fitnesses.length; i++) {
+          System.out.println(i + ": " +fitnesses[i] + ", ");
+        }
+        System.out.println();
     }
 	}
 }
