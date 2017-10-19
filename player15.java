@@ -54,6 +54,7 @@ public class player15 implements ContestSubmission
   final int q = 50; /* As is typical */
   int pop_size = 100; /* Or whatever pop_size should be */
   private static final double std_dev_th = 0.1;
+  private static final int PARENTSELECT_STYLE = 1;
   private static final int REPRODUCE_STYLE = 1;
   private static final int tournament_size = 40;
   private static final double prob_pick_best = 0.5;
@@ -329,18 +330,23 @@ returns double[m][NO_DIMENSIONS] */
   /* PARENT SELECTION + CHILD MAKING */
   public void reproduce(double[][] population, int pop_size) {
     for (int i = 0; i < pop_size; i++) { /* we want to double the population */
-        double[][] parents = tournament(population, pop_size);
-        // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
-        double[] child;
-        if (REPRODUCE_STYLE == 1) {
-          child = blend_crossover(parents[0], parents[1]);
-        }
+      double[][] parents;
+      if (PARENTSELECT_STYLE == 1) { // tournament
+        parents = tournament(population, pop_size);
+      } else if (PARENTSELECT_STYLE == 2) { // ranking
+        parents = ranking(population, pop_size);
+      }
+      // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
+      double[] child;
+      if (REPRODUCE_STYLE == 1) {
+        child = blend_crossover(parents[0], parents[1]);
+      }
 
-        /* Mutation */
-        uncorrelated_mutation(child);
+      /* Mutation */
+      uncorrelated_mutation(child);
 
-        // System.out.println("CHild length: " + child.length);
-        population[pop_size+i] = child;
+      // System.out.println("CHild length: " + child.length);
+      population[pop_size+i] = child;
     }
   }
   
@@ -393,12 +399,27 @@ returns double[m][NO_DIMENSIONS] */
 
     double[][] parents = new double[2][NO_DIMENSIONS * 2];
 
-    int parent1 = pick_on_probability(pop_size);
-    int parent2 = pick_on_probability(pop_size, parent1);
+    int parent1 = pick_on_probability(tournament_size);
+    int parent2 = pick_on_probability(tournament_size, parent1);
 
 
     System.arraycopy(population[(int)participants[parent1][0]], 0, parents[0], 0, 2 * NO_DIMENSIONS);
     System.arraycopy(population[(int)participants[parent2][0]], 0, parents[1], 0, 2 * NO_DIMENSIONS);
+
+    return parents;
+  }
+
+  public double[][] ranking(double[][] population, int pop_size) {
+    bubbleSort(population);
+
+    double[][] parents = new double[2][NO_DIMENSIONS * 2];
+
+    int parent1 = pick_on_probability(pop_size);
+    int parent2 = pick_on_probability(pop_size, parent1);
+
+
+    System.arraycopy(population[parent1], 0, parents[0], 0, 2 * NO_DIMENSIONS);
+    System.arraycopy(population[parent2], 0, parents[1], 0, 2 * NO_DIMENSIONS);
 
     return parents;
   }
@@ -416,9 +437,6 @@ returns double[m][NO_DIMENSIONS] */
         already_picked = 1;
       }
       cumulativeProbability += prob_pick_best*java.lang.Math.pow((1-prob_pick_best),i);
-      System.out.print(p);
-      System.out.print(" ");
-      System.out.println(cumulativeProbability);
       if (p <= cumulativeProbability) {
           return i + already_picked;
       }
