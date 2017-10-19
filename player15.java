@@ -56,6 +56,7 @@ public class player15 implements ContestSubmission
   private static final double std_dev_th = 0.1;
   private static final int REPRODUCE_STYLE = 1;
   private static final int tournament_size = 40;
+  private static final double prob_pick_best = 0.5;
 
   double fitnesses[] = new double[pop_size*2];
 
@@ -392,15 +393,37 @@ returns double[m][NO_DIMENSIONS] */
 
     double[][] parents = new double[2][NO_DIMENSIONS * 2];
 
-    System.arraycopy(population[(int)participants[0][0]], 0, parents[0], 0, 2 * NO_DIMENSIONS);
-    System.arraycopy(population[(int)participants[1][0]], 0, parents[1], 0, 2 * NO_DIMENSIONS);
+    int parent1 = pick_on_probability(pop_size);
+    int parent2 = pick_on_probability(pop_size, parent1);
 
-    // choose k (the tournament size) individuals from the population at random
-    // choose the best individual from pool/tournament with probability p
-    // choose the second best individual with probability p*(1-p)
-    // choose the third best individual with probability p*((1-p)^2)
-    // and so on...
+
+    System.arraycopy(population[(int)participants[parent1][0]], 0, parents[0], 0, 2 * NO_DIMENSIONS);
+    System.arraycopy(population[(int)participants[parent2][0]], 0, parents[1], 0, 2 * NO_DIMENSIONS);
+
     return parents;
+  }
+
+  public int pick_on_probability(int pop_size) {
+    return pick_on_probability(pop_size, -1);
+  }
+
+  public int pick_on_probability(int pop_size, int do_not_choose) {
+    double p = Math.random();
+    double cumulativeProbability = 0.0;
+    int already_picked = 0;
+    for (int i = 0; i < pop_size; i++) {
+      if (i == do_not_choose) {
+        already_picked = 1;
+      }
+      cumulativeProbability += prob_pick_best*java.lang.Math.pow((1-prob_pick_best),i);
+      System.out.print(p);
+      System.out.print(" ");
+      System.out.println(cumulativeProbability);
+      if (p <= cumulativeProbability) {
+          return i + already_picked;
+      }
+    }
+    return pop_size-1;
   }
 
   public void run()
