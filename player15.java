@@ -355,13 +355,13 @@ returns double[m][NO_DIMENSIONS] */
   }
 
   /* PARENT SELECTION + CHILD MAKING */
-  public void reproduce(double[][] population, int pop_size) {
-    for (int i = 0; i < pop_size; i++) { /* we want to double the population */
+  public void reproduce(double[][] population, int off_size) {
+    for (int i = 0; i < off_size; i++) { /* we want to double the population */
       double[][] parents;
       if (PARENTSELECT_STYLE == 1) { // tournament
-        parents = tournament(population, pop_size);
+        parents = tournament(population, off_size);
       } else { // ranking
-        parents = ranking(population, pop_size);
+        parents = ranking(population, off_size);
       }
       // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
       double[][] children = new double[2][2 * NO_DIMENSIONS];
@@ -376,9 +376,9 @@ returns double[m][NO_DIMENSIONS] */
       uncorrelated_mutation(children[1]);
 
       // System.out.println("CHild length: " + child.length);
-      population[pop_size+i] = children[0];
+      population[off_size+i] = children[0];
       i++;
-      population[pop_size+i] = children[1];
+      population[off_size+i] = children[1];
     }
   }
   
