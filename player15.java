@@ -234,15 +234,15 @@ returns double[m][NO_DIMENSIONS] */
 
     double u = rnd_.nextDouble();
     double gamma = (1 - 2 * a) * u - a;
-    double child[][] = new double[2][2 * NO_DIMENSIONS];
+    double children[][] = new double[2][2 * NO_DIMENSIONS];
 
     for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
-      child[0][i] = (1 - gamma) * parent1[i] + gamma * parent2[i];
-      if (child[0][i] < -5.0) child[0][i] = -5.0;
-      if (child[0][i] > 5.0) child[0][i] = 5.0;
+      children[0][i] = (1 - gamma) * parent1[i] + gamma * parent2[i];
+      if (children[0][i] < -5.0) children[0][i] = -5.0;
+      if (children[0][i] > 5.0) children[0][i] = 5.0;
       children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
-      if (child[1][i] < -5.0) child[1][i] = -5.0;
-      if (child[1][i] > 5.0) child[1][i] = 5.0;
+      if (children[1][i] < -5.0) children[1][i] = -5.0;
+      if (children[1][i] > 5.0) children[1][i] = 5.0;
 
       if (i >= NO_DIMENSIONS) {
         if(children[0][i] < std_dev_th) children[0][i] = std_dev_th;
@@ -257,7 +257,7 @@ returns double[m][NO_DIMENSIONS] */
   Produces a single child - may be changed to produce 2 different children if a != 0.5
   */
   public double[][] whole_arithmetic(double[] parent1, double[] parent2) { //double[][]
-    double[][] child = new double[2][2 * NO_DIMENSIONS];   // double[][] children = new double[2][NO_DIMENSIONS];
+    double[][] children = new double[2][2 * NO_DIMENSIONS];   // double[][] children = new double[2][NO_DIMENSIONS];
     double a = 0.5;   // If changed, two children will have to be created
     double sum1 = 0;
     double sum2 = 0;
@@ -359,13 +359,13 @@ returns double[m][NO_DIMENSIONS] */
       }
 
       /* Mutation */
-      uncorrelated_mutation(child[0]);
-      uncorrelated_mutation(child[1]);
+      uncorrelated_mutation(children[0]);
+      uncorrelated_mutation(children[1]);
 
       // System.out.println("CHild length: " + child.length);
-      population[pop_size+i] = child[0];
+      population[pop_size+i] = children[0];
       i++;
-      population[pop_size+i] = child[1];
+      population[pop_size+i] = children[1];
     }
   }
   
@@ -421,7 +421,6 @@ returns double[m][NO_DIMENSIONS] */
     int parent1 = pick_on_probability(tournament_size);
     int parent2 = pick_on_probability(tournament_size, parent1);
 
-
     System.arraycopy(population[(int)participants[parent1][0]], 0, parents[0], 0, 2 * NO_DIMENSIONS);
     System.arraycopy(population[(int)participants[parent2][0]], 0, parents[1], 0, 2 * NO_DIMENSIONS);
 
@@ -452,13 +451,14 @@ returns double[m][NO_DIMENSIONS] */
     double cumulativeProbability = 0.0;
     int already_picked = 0;
     for (int i = 0; i < pop_size; i++) {
-      if (i == do_not_choose) {
+      if (i == do_not_choose && i != pop_size-1) {
         already_picked = 1;
       }
       cumulativeProbability += prob_pick_best*java.lang.Math.pow((1-prob_pick_best),i);
       if (p <= cumulativeProbability) {
           return i + already_picked;
       }
+      already_picked = 0;
     }
     return pop_size-1;
   }

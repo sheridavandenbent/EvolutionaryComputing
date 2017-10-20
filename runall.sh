@@ -19,7 +19,7 @@ do
                         do
                             for prob_pick_best in 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
                             do
-                                java -DPARENT_SELECT_STYLE="$PARENTSELECT_STYLE" -DREPRODUCE_STYLE="$REPRODUCE_STYLE" -DSURVIVAL_STYLE="$SURVIVAL_STYLE" -Dq="$q" -Dpop_size="$pop_size" -Dstd_dev_th="$std_dev_th" -Dtournament_size="$tournament_size" -Dprob_pick_best="$prob_pick_best" -jar testrun.jar -submission=player15 -evaluation=BentCigarFunction -seed=1
+                                java -DPARENTSELECT_STYLE="$PARENTSELECT_STYLE" -DREPRODUCE_STYLE="$REPRODUCE_STYLE" -DSURVIVAL_STYLE="$SURVIVAL_STYLE" -Dq="$q" -Dpop_size="$pop_size" -Dstd_dev_th="$std_dev_th" -Dtournament_size="$tournament_size" -Dprob_pick_best="$prob_pick_best" -jar testrun.jar -submission=player15 -evaluation=BentCigarFunction -seed=1
                             done
                         done
                     done
