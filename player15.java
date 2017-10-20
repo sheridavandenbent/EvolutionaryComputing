@@ -220,7 +220,7 @@ returns double[m][NO_DIMENSIONS] */
   /* RECOMBINATION (1)
   Possible to change to producing 2 children (only viable if a != 0.5)
   */
-  public double[] blend_crossover(double[] parent1, double[] parent2) { //double[][]
+  public double[][] blend_crossover(double[] parent1, double[] parent2) { //double[][]
     double difference[] = new double[2 * NO_DIMENSIONS];  // double[][] children = new double[2][NO_DIMENSIONS];
     double a = 0.5;
     
@@ -234,22 +234,25 @@ returns double[m][NO_DIMENSIONS] */
 
     double u = rnd_.nextDouble();
     double gamma = (1 - 2 * a) * u - a;
-    double child[] = new double[2 * NO_DIMENSIONS];
+    double child[][] = new double[2][2 * NO_DIMENSIONS];
 
     for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
-      child[i] = (1 - gamma) * parent1[i] + gamma * parent2[i];
-      // children[0][i] = (1-gamma)*parent1[i] + gamma*parent2[i];
-      // children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
+      child[0][i] = (1 - gamma) * parent1[i] + gamma * parent2[i];
+      if (child[0][i] < -5.0) child[0][i] = -5.0;
+      if (child[0][i] > 5.0) child[0][i] = 5.0;
+      children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
+      if (child[1][i] < -5.0) child[1][i] = -5.0;
+      if (child[1][i] > 5.0) child[1][i] = 5.0;
     }
 
-    return child;
+    return children;
   }
 
   /* RECOMBINATION (2)
   Produces a single child - may be changed to produce 2 different children if a != 0.5
   */
-  public double[] whole_arithmetic(double[] parent1, double[] parent2) { //double[][]
-    double[] child = new double[2 * NO_DIMENSIONS];   // double[][] children = new double[2][NO_DIMENSIONS];
+  public double[][] whole_arithmetic(double[] parent1, double[] parent2) { //double[][]
+    double[][] child = new double[2][2 * NO_DIMENSIONS];   // double[][] children = new double[2][NO_DIMENSIONS];
     double a = 0.5;   // If changed, two children will have to be created
     double sum1 = 0;
     double sum2 = 0;
@@ -262,12 +265,11 @@ returns double[m][NO_DIMENSIONS] */
     double weighted_sum_2 = sum2 / parent2.length;
 
     for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
-      child[i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
-      // children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
-      // children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
+      children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
+      children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
     }
 
-    return child; //return children;
+    return children;
   }
 
   /* MUTATION
@@ -285,6 +287,8 @@ returns double[m][NO_DIMENSIONS] */
 
       /* Update chromosome value */
       individual[i] += individual[NO_DIMENSIONS + i] * rnd_.nextDouble();
+      if (individual[i] < -5.0) individual[i] = -5.0;
+      if (individual[i] > 5.0) individual[i] = 5.0;
     }
   }
 
@@ -338,18 +342,21 @@ returns double[m][NO_DIMENSIONS] */
         parents = ranking(population, pop_size);
       }
       // System.out.println("Parents length:" + parents[0].length + ", " + parents[1].length);
-      double[] child;
+      double[][] children = new double[2][2 * NO_DIMENSIONS];
       if (REPRODUCE_STYLE == 1) {
-        child = blend_crossover(parents[0], parents[1]);
+        children = blend_crossover(parents[0], parents[1]);
       } else {
-        child = whole_arithmetic(parents[0], parents[1]);
+        children = whole_arithmetic(parents[0], parents[1]);
       }
 
       /* Mutation */
-      uncorrelated_mutation(child);
+      uncorrelated_mutation(child[0]);
+      uncorrelated_mutation(child[1]);
 
       // System.out.println("CHild length: " + child.length);
-      population[pop_size+i] = child;
+      population[pop_size+i] = child[0];
+      i++;
+      population[pop_size+i] = child[1];
     }
   }
   
