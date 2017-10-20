@@ -1,7 +1,7 @@
 #!/bin/sh
 
-javac -cp contest.jar player15.java 
-jar cmf MainClass.txt submission.jar player15.class Pair.class PairD.class
+javac -cp contest.jar player15*.java 
+jar cmf MainClass.txt submission.jar player15*.class Pair.class PairD.class
 
 for PARENTSELECT_STYLE in 1 2
 do
@@ -13,7 +13,7 @@ do
             do
                 for pop_size in 10 50 100 250 500 1000
                 do
-                    for std_dev in 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2
+                    for std_dev_th in 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2
                     do
                         for tournament_size in 5 10 20 40 80
                         do
