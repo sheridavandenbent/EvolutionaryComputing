@@ -52,9 +52,7 @@ public class player15 implements ContestSubmission
 
   /* These should be changed when we actually test it to test all combinations */
   final int q = Integer.parseInt(System.getProperty("q")); /* As is typical */
-  System.out.println(System.getProperty("pop_size"));
   int pop_size = Integer.parseInt(System.getProperty("pop_size")); /* Or whatever pop_size should be */
-  System.out.println(System.getProperty("std_dev_th"));
   private static final double std_dev_th = Double.parseDouble(System.getProperty("std_dev_th"));
   private static final int PARENTSELECT_STYLE = Integer.parseInt(System.getProperty("PARENTSELECT_STYLE"));
   private static final int REPRODUCE_STYLE = Integer.parseInt(System.getProperty("REPRODUCE_STYLE"));
