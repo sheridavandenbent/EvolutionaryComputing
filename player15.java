@@ -243,6 +243,11 @@ returns double[m][NO_DIMENSIONS] */
       children[1][i] = (1-gamma)*parent2[i] + gamma*parent1[i];
       if (child[1][i] < -5.0) child[1][i] = -5.0;
       if (child[1][i] > 5.0) child[1][i] = 5.0;
+
+      if (i >= NO_DIMENSIONS) {
+        if(children[0][i] < std_dev_th) children[0][i] = std_dev_th;
+        if(children[1][i] < std_dev_th) children[1][i] = std_dev_th;
+      }
     }
 
     return children;
@@ -267,6 +272,10 @@ returns double[m][NO_DIMENSIONS] */
     for (int i = 0; i < 2 * NO_DIMENSIONS; i++) {
       children[0][i] = a*weighted_sum_1 + (1-a)*weighted_sum_2;
       children[1][i] = a*weighted_sum_2 + (1-a)*weighted_sum_1;
+      if (i >= NO_DIMENSIONS) {
+        if(children[0][i] < std_dev_th) children[0][i] = std_dev_th;
+        if(children[1][i] < std_dev_th) children[1][i] = std_dev_th;
+      }
     }
 
     return children;
