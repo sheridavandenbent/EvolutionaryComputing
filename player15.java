@@ -53,6 +53,7 @@ public class player15 implements ContestSubmission
   /* These should be changed when we actually test it to test all combinations */
   final int q = Integer.parseInt(System.getProperty("q")); /* As is typical */
   int pop_size = Integer.parseInt(System.getProperty("pop_size")); /* Or whatever pop_size should be */
+  int off_size = Integer.parseInt(System.getProperty("off_size")); /* Or whatever pop_size should be */
   private static final double std_dev_th = Double.parseDouble(System.getProperty("std_dev_th"));
   private static final int PARENTSELECT_STYLE = Integer.parseInt(System.getProperty("PARENTSELECT_STYLE"));
   private static final int REPRODUCE_STYLE = Integer.parseInt(System.getProperty("REPRODUCE_STYLE"));
@@ -60,7 +61,7 @@ public class player15 implements ContestSubmission
   private static final int tournament_size = Integer.parseInt(System.getProperty("tournament_size"));
   private static final double prob_pick_best = Double.parseDouble(System.getProperty("prob_pick_best"));
 
-  double fitnesses[] = new double[pop_size*2];
+  double fitnesses[] = new double[pop_size + off_size];
 
   public player15()
   {
@@ -328,14 +329,26 @@ returns double[m][NO_DIMENSIONS] */
 
   /* Method to calculate the fitness for every individual in a population. 
     Returns the total number of evaluations up to now */
-  public int calc_fitness(double[][] population, int evals, int half) {
+  public int calc_fitness(double[][] population, int evals, int init) {
     double to_eval[] = new double[NO_DIMENSIONS];
-    for(int i = pop_size * half; i < pop_size + pop_size * half; i++) {
-      /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
-      System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
+    if(init > 0) {
+      /* Initialize initial initialization */
+      for(int i = 0; i < pop_size; i++) {
+        /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
+        System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
 
-      fitnesses[i] = (double) evaluation_.evaluate(to_eval);
-      evals++;
+        fitnesses[i] = (double) evaluation_.evaluate(to_eval);
+        evals++;
+      }
+    } else {
+      /* New children */
+      for(int i = pop_size; i < pop_size + off_size; i++) {
+        /* Evaluate only the chromosomes of the individual, not the accompanying std_devs */
+        System.arraycopy(population[i], 0, to_eval, 0, NO_DIMENSIONS);
+
+        fitnesses[i] = (double) evaluation_.evaluate(to_eval);
+        evals++;
+      }
     }
 
     return evals;
@@ -467,12 +480,12 @@ returns double[m][NO_DIMENSIONS] */
   {
     // Run your algorithm here
     setSeed(68); /* Or whatever this number should be */
-    double population[][] = new double[pop_size*2][2 * NO_DIMENSIONS]; /* pop_size*2 since children also have to fit */
+    double population[][] = new double[pop_size + off_size][2 * NO_DIMENSIONS]; /* pop_size + off_size since children also have to fit */
     // Init population
     init_population(population, pop_size);
 
     // // Print the starting population
-    // for(int i = 0; i < pop_size*2; i++) {
+    // for(int i = 0; i < pop_size + off_size; i++) {
     //   for(int j = 0; j < NO_DIMENSIONS; j++) {
     //     System.out.print(population[i][j] + ", ");
     //   }
@@ -485,8 +498,7 @@ returns double[m][NO_DIMENSIONS] */
     while (evals<evaluations_limit_) {
         // Select parents and make some babyyyyyssss
         // Apply crossover / mutation operators
-        reproduce(population, pop_size);
-
+        reproduce(population, off_size);
 
         // Check fitness of unknown fuction
         evals = calc_fitness(population, evals, 1);
