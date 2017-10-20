@@ -376,9 +376,9 @@ returns double[m][NO_DIMENSIONS] */
       uncorrelated_mutation(children[1]);
 
       // System.out.println("CHild length: " + child.length);
-      population[off_size+i] = children[0];
+      population[pop_size+i] = children[0];
       i++;
-      population[off_size+i] = children[1];
+      population[pop_size+i] = children[1];
     }
   }
   
